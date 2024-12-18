@@ -1,5 +1,7 @@
 import Presenter from './presenter/presenter';
+import EventsModel from './model/events-model';
 
-const presenter = new Presenter();
+const eventsModel = new EventsModel();
+const presenter = new Presenter({eventsModel});
 
 presenter.init();
