@@ -1,5 +1,5 @@
-import {createElement} from '../render';
 import {formatDate, getDestination, getEventIconUrl, getTypeOffers} from '../utils/utils';
+import AbstractView from '../framework/view/abstract-view';
 
 
 function getOfferTemplate(offer, eventOffers) {
@@ -141,26 +141,24 @@ function getEditFormTemplate(event, destinations, offers) {
   `;
 }
 
-export default class EditForm {
-  constructor({event, destinations, offers}) {
-    this.event = event;
-    this.destinations = destinations;
-    this.offers = offers;
+export default class EditForm extends AbstractView {
+  #event = null;
+  #destinations = null;
+  #offers = null;
+
+  constructor({event, destinations, offers, submitHandler, clickHandler}) {
+    super();
+    this.#event = event;
+    this.#destinations = destinations;
+    this.#offers = offers;
+    this.element.querySelector('.event.event--edit').addEventListener('submit', submitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', (clickEvent) => {
+      clickEvent.preventDefault();
+      clickHandler();
+    });
   }
 
-  getTemplate() {
-    return getEditFormTemplate(this.event, this.destinations, this.offers);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
+  get template() {
+    return getEditFormTemplate(this.#event, this.#destinations, this.#offers);
   }
 }
