@@ -1,4 +1,3 @@
-import {createElement} from '../render';
 import {
   formatDate,
   getDuration,
@@ -8,6 +7,7 @@ import {
   getOffer,
   getTypeOffers
 } from '../utils/utils';
+import AbstractView from '../framework/view/abstract-view';
 
 function getOfferTemplate(id, type, offers){
   const typeOffers = getTypeOffers(type, offers) || [];
@@ -46,7 +46,7 @@ function getEventItemTemplate(event, destinations, offers) {
                   <p class="event__time">
                     <time class="event__start-time" datetime="${date_from.toISOString()}">${startTime}</time>
                     &mdash;
-                    <time class="event__end-time" datetime="${date_from.toISOString()}">${endTime}</time>
+                    <time class="event__end-time" datetime="${date_to.toISOString()}">${endTime}</time>
                   </p>
                   <p class="event__duration">${duration}</p>
                 </div>
@@ -71,26 +71,23 @@ function getEventItemTemplate(event, destinations, offers) {
   `;
 }
 
-export default class EventItem {
-  constructor({event, destinations, offers}) {
-    this.event = event;
-    this.destinations = destinations;
-    this.offers = offers;
+export default class EventItem extends AbstractView {
+  #event = null;
+  #destinations = null;
+  #offers = null;
+
+  constructor({event, destinations, offers, clickHandler}) {
+    super();
+    this.#event = event;
+    this.#destinations = destinations;
+    this.#offers = offers;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', (eventClick) => {
+      eventClick.preventDefault();
+      clickHandler();
+    });
   }
 
-  getTemplate() {
-    return getEventItemTemplate(this.event, this.destinations, this.offers);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
+  get template() {
+    return getEventItemTemplate(this.#event, this.#destinations, this.#offers);
   }
 }
