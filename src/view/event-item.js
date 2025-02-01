@@ -23,11 +23,11 @@ function getOfferTemplate(id, type, offers){
 }
 
 function getEventItemTemplate(event, destinations, offers) {
-  const {date_from, date_to, type, destination: eventDestionation, base_price, is_favorite, offers: eventOffers} = event;
+  const {date_from, date_to, type, destination: eventDestination, base_price, is_favorite, offers: eventOffers} = event;
   const startDay = formatDate(date_from, 'MMM D');
   const startDayValue = formatDate(date_from, 'YYYY-MM-DD');
   const duration = getDuration(date_from, date_to);
-  const destination = getDestination(eventDestionation, destinations);
+  const destination = getDestination(eventDestination, destinations);
   const eventTitle = getEvent(type, destination?.name);
   const eventIconUrl = getEventIconUrl(type);
   const startTime = formatDate(date_from, 'HH:MM');
@@ -76,7 +76,7 @@ export default class EventItem extends AbstractView {
   #destinations = null;
   #offers = null;
 
-  constructor({event, destinations, offers, clickHandler}) {
+  constructor({event, destinations, offers, clickHandler, favoriteClickHandler}) {
     super();
     this.#event = event;
     this.#destinations = destinations;
@@ -84,6 +84,10 @@ export default class EventItem extends AbstractView {
     this.element.querySelector('.event__rollup-btn').addEventListener('click', (eventClick) => {
       eventClick.preventDefault();
       clickHandler();
+    });
+    this.element.querySelector('.event__favorite-btn').addEventListener('click', (eventClick) => {
+      eventClick.preventDefault();
+      favoriteClickHandler();
     });
   }
 
