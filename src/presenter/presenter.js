@@ -1,9 +1,9 @@
-import {render, replace} from '../framework/render';
-import EventItem from '../view/event-item';
+import {render} from '../framework/render';
 import EventList from '../view/event-list';
 import Filters from '../view/filters';
 import Sorting from '../view/sorting';
-import EditForm from '../view/edit-form';
+import EventPresenter from './event-presenter';
+import {updateItem} from '../utils/utils';
 
 export default class Presenter {
   #eventListComponent = new EventList();
@@ -13,6 +13,15 @@ export default class Presenter {
   #events = null;
   #destinations = null;
   #offers = null;
+  #eventPresenters = new Map();
+  #handleEventChange = (updatedEvent) => {
+    this.#events = updateItem(this.#events, updatedEvent);
+    this.#eventPresenters.get(updatedEvent.id).init(updatedEvent);
+  };
+
+  #handleModeChange = () => {
+    this.#eventPresenters.forEach((event) => event.resetView());
+  };
 
   constructor({eventsModel}) {
     this.#eventsModel = eventsModel;
@@ -33,34 +42,14 @@ export default class Presenter {
   }
 
   #renderEvent(event) {
-    const escKeyDownHandler = (evt) => {
-      if (evt.key === 'Escape') {
-        evt.preventDefault();
-        replaceFromEditToItem();
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    };
-
-    const editForm = new EditForm({event, destinations: this.#destinations, offers: this.#offers, submitHandler: () => {
-      replaceFromEditToItem();
-      document.removeEventListener('keydown', escKeyDownHandler);
-    }, clickHandler: () => {
-      replaceFromEditToItem();
-      document.removeEventListener('keydown', escKeyDownHandler);
-    }});
-    const eventItem = new EventItem({event, destinations: this.#destinations, offers: this.#offers, clickHandler: () => {
-      replaceFromItemToEdit();
-      document.addEventListener('keydown', escKeyDownHandler);
-    }});
-
-    function replaceFromEditToItem() {
-      replace(eventItem, editForm);
-    }
-
-    function replaceFromItemToEdit() {
-      replace(editForm,eventItem);
-    }
-
-    render(eventItem, this.#eventListComponent.element);
+    const eventPresenter = new EventPresenter({
+      destinations:this.#eventsModel.destinations,
+      offers:this.#offers,
+      eventListComponent: this.#eventListComponent,
+      onDataChange: this.#handleEventChange,
+      onModeChange: this.#handleModeChange
+    });
+    eventPresenter.init(event);
+    this.#eventPresenters.set(event.id, eventPresenter);
   }
 }
