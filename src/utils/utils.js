@@ -1,4 +1,9 @@
 import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+
+dayjs.extend(isSameOrBefore);
+dayjs.extend(isSameOrAfter);
 
 function formatDate(date, format) {
   return dayjs(date).format(format);
@@ -57,4 +62,34 @@ function updateItem(items, update) {
   return items.map((item) => item.id === update.id ? update : item);
 }
 
-export {formatDate, getDuration, getEvent, getDestination, getEventIconUrl, getTypeOffers, getOffer, updateItem};
+function isSameDay(date1, date2) {
+  return dayjs(date1).isSame(date2, 'd');
+}
+
+function isFutureEvent(date) {
+  return dayjs(date).isAfter(new Date(),'day');
+}
+
+function isPastEvent(date) {
+  return dayjs(date).isBefore(new Date(),'day');
+}
+
+function isPresentEvent(from, to) {
+  return dayjs(from).isSameOrBefore(new Date(),'day') && dayjs(to).isSameOrAfter(new Date(),'day');
+}
+
+export {
+  formatDate,
+  getDuration,
+  getEvent,
+  getDestination,
+  getEventIconUrl,
+  getTypeOffers,
+  getOffer,
+  updateItem,
+  isFutureEvent,
+  isPastEvent,
+  isPresentEvent,
+  isSameDay
+};
+

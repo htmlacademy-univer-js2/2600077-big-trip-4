@@ -155,6 +155,7 @@ export default class EditForm extends AbstractStatefulView {
   #offers = null;
   #handleFormSubmit = null;
   #handleClick = null;
+  #handleDelete = null;
   #datepicker = null;
 
   #typeChangeHandler = (evt) => {
@@ -203,13 +204,14 @@ export default class EditForm extends AbstractStatefulView {
     this.#handleFormSubmit(this._state);
   };
 
-  constructor({event, destinations, offers, submitHandler, clickHandler}) {
+  constructor({event, destinations, offers, submitHandler, clickHandler, deleteHandler}) {
     super();
     this._setState(event);
     this.#destinations = destinations;
     this.#offers = offers;
     this.#handleFormSubmit = submitHandler;
     this.#handleClick = clickHandler;
+    this.#handleDelete = deleteHandler;
     this._restoreHandlers();
   }
 
@@ -235,6 +237,10 @@ export default class EditForm extends AbstractStatefulView {
     this.element.querySelector('.event__rollup-btn').addEventListener('click', (clickEvent) => {
       clickEvent.preventDefault();
       this.#handleClick();
+    });
+    this.element.querySelector('.event__reset-btn').addEventListener('click', (clickEvent) => {
+      clickEvent.preventDefault();
+      this.#handleDelete(this._state);
     });
     this.element.querySelector('.event__type-group').addEventListener('change', this.#typeChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
