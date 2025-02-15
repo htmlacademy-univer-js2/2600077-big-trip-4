@@ -1,6 +1,8 @@
 import EditForm from '../view/edit-form';
 import EventItem from '../view/event-item';
 import {remove, render, replace} from '../framework/render';
+import {UpdateType, UserAction} from '../const';
+import {isSameDay} from '../utils/utils';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -42,12 +44,24 @@ export default class EventPresenter {
       destinations: this.#destinations,
       offers: this.#offers,
       submitHandler: (value) => {
-        this.#handleDataChange(value);
+        const isMinor = !isSameDay(value.date_from, this.#event.date_from) || !isSameDay(value.date_to, this.#event.date_to);
+        this.#handleDataChange(
+          UserAction.UPDATE_EVENT,
+          isMinor ? UpdateType.MINOR : UpdateType.PATCH,
+          value
+        );
         this.#replaceFromEditToItem();
       },
       clickHandler: () => {
         this.#editForm.reset(this.#event);
         this.#replaceFromEditToItem();
+      },
+      deleteHandler: (value) => {
+        this.#handleDataChange(
+          UserAction.DELETE_EVENT,
+          UpdateType.MINOR,
+          value,
+        );
       }
     });
     this.#eventItem = new EventItem({
@@ -86,6 +100,11 @@ export default class EventPresenter {
     }
   }
 
+  destroy() {
+    remove(this.#eventItem);
+    remove(this.#editForm);
+  }
+
   #replaceFromEditToItem() {
     replace(this.#eventItem, this.#editForm);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
@@ -100,6 +119,10 @@ export default class EventPresenter {
   }
 
   #handleFavoriteChange() {
-    this.#handleDataChange({...this.#event, is_favorite: !this.#event.is_favorite});
+    this.#handleDataChange(
+      UserAction.UPDATE_EVENT,
+      UpdateType.MINOR,
+      {...this.#event, is_favorite: !this.#event.is_favorite}
+    );
   }
 }
