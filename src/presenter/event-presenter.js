@@ -43,9 +43,9 @@ export default class EventPresenter {
       event: this.#event,
       destinations: this.#destinations,
       offers: this.#offers,
-      submitHandler: (value) => {
+      submitHandler: async (value) => {
         const isMinor = !isSameDay(value.date_from, this.#event.date_from) || !isSameDay(value.date_to, this.#event.date_to);
-        this.#handleDataChange(
+        await this.#handleDataChange(
           UserAction.UPDATE_EVENT,
           isMinor ? UpdateType.MINOR : UpdateType.PATCH,
           value
@@ -56,8 +56,8 @@ export default class EventPresenter {
         this.#editForm.reset(this.#event);
         this.#replaceFromEditToItem();
       },
-      deleteHandler: (value) => {
-        this.#handleDataChange(
+      deleteHandler: async (value) => {
+        await this.#handleDataChange(
           UserAction.DELETE_EVENT,
           UpdateType.MINOR,
           value,
